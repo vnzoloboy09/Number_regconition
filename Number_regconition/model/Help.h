@@ -13,14 +13,7 @@ inline float ReLUDerivertive(float x) {
 	return (x > 0 ? 1.0f : 0.0f);
 }
 
-std::vector<float> ReLU(const std::vector<float>& z) {
-	std::vector<float> out(z.size());
-	for (size_t i = 0; i < z.size(); i++) {
-		out[i] = ReLU(z[i]);
-	}
-
-	return out;
-}
+std::vector<float> ReLU(const std::vector<float>& z);
 
 std::vector<float> Softmax(const std::vector<float>& input);
 

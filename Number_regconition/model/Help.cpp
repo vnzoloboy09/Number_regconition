@@ -4,7 +4,7 @@
 #include <iostream>
 
 std::vector<float> Softmax(const std::vector<float>& input) {
-    int n = input.size();
+    size_t n = input.size();
     std::vector<float> output(n);
 
     float maxVal = *std::max_element(input.begin(), input.end());
@@ -14,13 +14,21 @@ std::vector<float> Softmax(const std::vector<float>& input) {
         sum += std::exp(i - maxVal);
     }
 
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
         output[i] = std::exp(input[i] - maxVal) / sum;
     }
 
     return output;
 }
 
+std::vector<float> ReLU(const std::vector<float>& z){
+    std::vector<float> out(z.size());
+    for (size_t i = 0; i < z.size(); i++) {
+        out[i] = ReLU(z[i]);
+    }
+
+    return out;
+}
 
 int32_t readInt(std::ifstream& f) {
     unsigned char bytes[4];
