@@ -4,8 +4,6 @@
 #include <fstream>
 #include <iostream>
 
-static constexpr bool APPLY_RELU = true;
-
 Network::Network(const std::vector<size_t>& topology) {
 	m_Layers.reserve(topology.size() - 1);
 	for (size_t i = 1; i < topology.size(); i++) {
@@ -38,32 +36,30 @@ Network::Network(const char* filename) {
 }
 
 void Network::Forward(const std::vector<float>& inputs) {
-	m_Layers[0].Forward(inputs, APPLY_RELU);
+	m_Layers[0].Forward(inputs, false);
 	for (size_t i = 1; i < m_Layers.size() - 1; i++) {
-		m_Layers[i].Forward(m_Layers[i - 1].outputs, APPLY_RELU);
+		m_Layers[i].Forward(m_Layers[i - 1].outputs, false);
 	}
 
-	m_Layers.back().Forward(m_Layers[m_Layers.size() - 2].outputs, !APPLY_RELU);
-	m_Layers.back().outputs = Softmax(m_Layers.back().outputs);
+	m_Layers.back().Forward(m_Layers[m_Layers.size() - 2].outputs, true);
 }
 
 void Network::BackProp(const std::vector<float>& target, float lr) {
 	for (size_t i = 0; i < m_Layers.back().outputCnt; i++) {
-		float a = m_Layers.back().outputs[i];
-		float error = a - target[i];
-		m_Layers.back().delta[i] = error * ReLUDerivertive(a);
+		m_Layers.back().delta[i] = m_Layers.back().outputs[i] - target[i];
 	}
 
 	for (int l = m_Layers.size() - 2; l >= 0; l--) {
 		Layer& current = m_Layers[l];
 		Layer& next = m_Layers[l + 1];
 
-		for (size_t i = 0; i < next.inputCnt; i++) {
+		for (size_t i = 0; i < current.outputCnt; i++) {
 			float error = 0.0f;
 
 			for (size_t j = 0; j < next.outputCnt; j++) {
-				error += next.weights[j * next.inputCnt + i] * next.delta[j] * ReLUDerivertive(current.outputs[i]);
+				error += next.weights[j * next.inputCnt + i] * next.delta[j];
 			}
+			current.delta[i] = error * ReLUDerivertive(current.z[i]);
 		}
 	}
 
@@ -82,8 +78,9 @@ void Network::Train(const std::vector<std::vector<float>>& inputs,
 {
 	for (size_t e = 0; e < epochs; e++) {
 		for (size_t i = 0; i < inputs.size(); i++) {
+			std::cout << "Epoch: " << e + 1 << ", Dataset: " << i + 1 << '\n';
 			Forward(inputs[i]);
-			BackProp(targets[i], 0.1f);
+			BackProp(targets[i], lr);
 		}
 	}
 }
