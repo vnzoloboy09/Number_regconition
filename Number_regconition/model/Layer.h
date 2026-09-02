@@ -11,6 +11,8 @@ public:
 	std::vector<float> inputs;
 	std::vector<float> z;
 	std::vector<float> outputs; // aka: activations
+	std::vector<float> weight_grads;
+	std::vector<float> bias_grads;
 
 public:
 	Layer(size_t inputCnt, size_t outputCnt);

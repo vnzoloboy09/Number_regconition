@@ -3,6 +3,9 @@
 
 #include <fstream>
 #include <iostream>
+#include <numeric>
+#include <algorithm>
+#include <random>
 
 Network::Network(const std::vector<size_t>& topology) {
 	m_Layers.reserve(topology.size() - 1);
@@ -44,7 +47,7 @@ void Network::Forward(const std::vector<float>& inputs) {
 	m_Layers.back().Forward(m_Layers[m_Layers.size() - 2].outputs, true);
 }
 
-void Network::BackProp(const std::vector<float>& target, float lr) {
+void Network::BackProp(const std::vector<float>& target) {
 	for (size_t i = 0; i < m_Layers.back().outputCnt; i++) {
 		m_Layers.back().delta[i] = m_Layers.back().outputs[i] - target[i];
 	}
@@ -65,9 +68,24 @@ void Network::BackProp(const std::vector<float>& target, float lr) {
 
 	for (auto& layer : m_Layers) {
 		for (size_t i = 0; i < layer.outputCnt; i++) {
-			layer.biases[i] -= lr * layer.delta[i];
+			layer.bias_grads[i] += layer.delta[i];
 			for (size_t j = 0; j < layer.inputCnt; j++) {
-				layer.weights[i * layer.inputCnt + j] -= lr * layer.delta[i] * layer.inputs[j];
+				layer.weight_grads[i * layer.inputCnt + j] += layer.delta[i] * layer.inputs[j];
+			}
+		}
+	}
+}
+
+void Network::ApplyBatch(float lr, size_t batchSize) {
+	for (auto& layer : m_Layers) {
+		for (size_t i = 0; i < layer.outputCnt; i++) {
+			layer.biases[i] -= lr * (layer.bias_grads[i] / static_cast<float>(batchSize));
+			layer.bias_grads[i] = 0.0f; 
+
+			for (size_t j = 0; j < layer.inputCnt; j++) {
+				size_t idx = i * layer.inputCnt + j;
+				layer.weights[idx] -= lr * (layer.weight_grads[idx] / static_cast<float>(batchSize));
+				layer.weight_grads[idx] = 0.0f;
 			}
 		}
 	}
@@ -76,13 +94,32 @@ void Network::BackProp(const std::vector<float>& target, float lr) {
 void Network::Train(const std::vector<std::vector<float>>& inputs,
 	const std::vector<std::vector<float>>& targets, float lr, size_t epochs)
 {
+	size_t batchSize = 64;
+
+	std::vector<size_t> indices(inputs.size());
+	std::iota(indices.begin(), indices.end(), 0);
+
+	std::random_device rd;
+	std::mt19937 g(rd());
+
+	std::shuffle(indices.begin(), indices.end(), g);
+	size_t batchCnt = 0;
+
 	for (size_t e = 0; e < epochs; e++) {
-		lr *= 0.95f;
-		for (size_t i = 0; i < inputs.size(); i++) {
-			std::cout << "Epoch: " << e + 1 << ", Dataset: " << i + 1 << '\n';
+		for (size_t step = 0; step < indices.size(); step++) {
+			size_t i = indices[step];
+			std::cout << "Epoch: " << e + 1 << ", Dataset: " << step + 1 << '\n';
+			
 			Forward(inputs[i]);
-			BackProp(targets[i], lr);
+			BackProp(targets[i]);
+
+			batchCnt++;
+			if (batchCnt == batchSize || step == indices.size() - 1) {
+				ApplyBatch(lr, batchSize);
+				batchCnt = 0;
+			}
 		}
+		lr *= 0.95f;
 	}
 }
 

@@ -9,9 +9,11 @@ public:
 
 	void Forward(const std::vector<float>& inptus);
 
-	void BackProp(const std::vector<float>& target, float lr);
+	void BackProp(const std::vector<float>& target);
 	void Train(const std::vector<std::vector<float>>& inputs, 
 		const std::vector<std::vector<float>>& targets, float lr, size_t epochs);
+
+	void ApplyBatch(float lr, size_t batchSize);
 
 	void Save(const char* filename) const;
 

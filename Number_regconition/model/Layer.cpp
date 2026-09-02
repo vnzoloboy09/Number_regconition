@@ -5,7 +5,8 @@
 
 Layer::Layer(size_t inCnt, size_t outCnt)
 	: inputCnt(inCnt), outputCnt(outCnt), delta(outCnt), weights(inCnt * outCnt), 
-	biases(outCnt, 0.0f), inputs(inCnt), z(outCnt, 0.0f), outputs(outCnt)
+	biases(outCnt, 0.0f), inputs(inCnt), z(outCnt, 0.0f), outputs(outCnt),
+	weight_grads(inCnt * outCnt, 0.0f), bias_grads(outCnt, 0.0f)
 {
 	std::random_device rd;
 	std::mt19937 gen(rd());
