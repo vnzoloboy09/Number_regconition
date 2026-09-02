@@ -9,10 +9,11 @@ public:
 	std::vector<float> biases;
 	std::vector<float> delta;
 	std::vector<float> inputs;
+	std::vector<float> z;
 	std::vector<float> outputs; // aka: activations
 
 public:
 	Layer(size_t inputCnt, size_t outputCnt);
 
-	void Forward(const std::vector<float>& inputs, const bool& applyReLU);
+	void Forward(const std::vector<float>& inputs, bool isOutLayer);
 };
