@@ -77,6 +77,7 @@ void Network::Train(const std::vector<std::vector<float>>& inputs,
 	const std::vector<std::vector<float>>& targets, float lr, size_t epochs)
 {
 	for (size_t e = 0; e < epochs; e++) {
+		lr *= 0.95f;
 		for (size_t i = 0; i < inputs.size(); i++) {
 			std::cout << "Epoch: " << e + 1 << ", Dataset: " << i + 1 << '\n';
 			Forward(inputs[i]);

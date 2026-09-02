@@ -7,8 +7,13 @@ Layer::Layer(size_t inCnt, size_t outCnt)
 	: inputCnt(inCnt), outputCnt(outCnt), delta(outCnt), weights(inCnt * outCnt), 
 	biases(outCnt, 0.0f), inputs(inCnt), z(outCnt, 0.0f), outputs(outCnt)
 {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	float stddev = std::sqrt(2.0f / static_cast<float>(inputCnt));
+	std::normal_distribution<float> d(0.0f, stddev);
+
 	for (auto& w : weights) {
-		w = static_cast<float>(rand()) / RAND_MAX - 0.5f;
+		w = d(gen);
 	}
 }
 
