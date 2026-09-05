@@ -37,7 +37,7 @@ std::vector<float> OneHot(size_t num) {
     return out;
 }
 
-float randomFloat(float a, float b) {
+float RandomFloat(float a, float b) {
     static std::random_device rd;   // seed
     static std::mt19937 gen(rd());  // Mersenne Twister engine
     std::uniform_real_distribution<float> dist(a, b);
