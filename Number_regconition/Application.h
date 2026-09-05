@@ -13,6 +13,7 @@ public:
     void GetModelPredic(const std::vector<float>& inputs);
     void RenderDrawingCanvasWindow();
     void RenderDatasetAugmentationWindow();
+    void GenerateAndSaveAugmentedDataset();
 
     void Run();
 

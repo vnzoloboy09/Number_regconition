@@ -8,6 +8,43 @@
 #include "model/Help.h"
 #include "model/Network.h"
 
+Application::Application()
+    : m_Network("model/Model.bin"), m_CanvasData(28 * 28, 0.0f), m_Confidence(10, 0.0f)
+{
+    if (!glfwInit()) assert("Failed to init GLFW");
+
+    // Create window with OpenGL context
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    window = glfwCreateWindow(1280, 720, "ImGui + GLFW Example", nullptr, nullptr);
+    if (!window) assert("Failed to create window");
+
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1); // Enable vsync
+
+    // Setup ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    ImGui::StyleColorsDark();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+}
+
+Application::~Application() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+}
+
 void Application::GetModelPredic(const std::vector<float>& inputs) {
     m_Network.Forward(inputs);
     m_Confidence = m_Network.GetOutput();
@@ -292,11 +329,11 @@ void Application::RenderDatasetAugmentationWindow() {
         ImGui::SliderFloat("Random Noise", &augNoise, 0.0f, 0.2f, "%.2f");
 
         if (ImGui::Button("Random", ImVec2(150, 25))) {
-            augRotation = randomFloat(-45.0f, 45.0f);
-            augTranslationX = randomFloat(-5.0f, 5.0f);
-            augTranslationY = randomFloat(-5.0f, 5.0f);
-            augScale = randomFloat(0.7f, 1.3f);
-            augNoise = randomFloat(0.0f, 0.2f);
+            augRotation = RandomFloat(-45.0f, 45.0f);
+            augTranslationX = RandomFloat(-5.0f, 5.0f);
+            augTranslationY = RandomFloat(-5.0f, 5.0f);
+            augScale = RandomFloat(0.7f, 1.3f);
+            augNoise = RandomFloat(0.0f, 0.2f);
         }
 
         if (ImGui::Button("Reset Parameters", ImVec2(150, 25))) {
@@ -314,7 +351,7 @@ void Application::RenderDatasetAugmentationWindow() {
         ImGui::Text("Batch Dataset Augmentation");
         ImGui::SliderInt("Variations / Image", &samplesPerImage, 1, 10);
 
-        if (ImGui::Button("Gen", ImVec2(220, 40))) {
+        if (ImGui::Button("Genarate", ImVec2(220, 40))) {
             // TODO: Loop through your 60,000 dataset arrays here. 
             // Apply randomized versions of these slider limits to each image and save them.
         }
@@ -323,43 +360,6 @@ void Application::RenderDatasetAugmentationWindow() {
     ImGui::EndGroup();
 
     ImGui::End();
-}
-
-Application::Application() 
-    : m_Network("model/Model.bin"), m_CanvasData(28 * 28, 0.0f), m_Confidence(10, 0.0f)
-{
-    if (!glfwInit()) assert("Failed to init GLFW");
-
-    // Create window with OpenGL context
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    window = glfwCreateWindow(1280, 720, "ImGui + GLFW Example", nullptr, nullptr);
-    if (!window) assert("Failed to create window");
-
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1); // Enable vsync
-
-    // Setup ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-    ImGui::StyleColorsDark();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
-}
-
-Application::~Application() {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
 }
 
 void Application::Run() {

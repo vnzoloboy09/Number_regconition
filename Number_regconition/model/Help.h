@@ -13,7 +13,7 @@ inline float ReLUDerivertive(float x) {
 	return (x > 0 ? 1.0f : 0.0f);
 }
 
-float randomFloat(float a, float b);
+float RandomFloat(float a, float b);
 
 std::vector<float> OneHot(size_t num);
 
