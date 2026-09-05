@@ -124,3 +124,69 @@ void drawImage(const std::vector<float>& image, int rows, int cols) {
         std::cout << "\n";
     }
 }
+
+void SaveDatasetBinary(const std::string& filename,
+    const std::vector<std::vector<float>>& images,
+    const std::vector<int>& labels) {
+    std::ofstream outFile(filename, std::ios::binary);
+    if (!outFile.is_open()) {
+        std::cerr << "Failed to open file for writing: " << filename << std::endl;
+        return;
+    }
+
+    uint32_t numSamples = static_cast<uint32_t>(images.size());
+    uint32_t imgWidth = 28;
+    uint32_t imgHeight = 28;
+
+    // 1. Write Header metadata
+    outFile.write(reinterpret_cast<char*>(&numSamples), sizeof(numSamples));
+    outFile.write(reinterpret_cast<char*>(&imgWidth), sizeof(imgWidth));
+    outFile.write(reinterpret_cast<char*>(&imgHeight), sizeof(imgHeight));
+
+    // 2. Write Data Loop
+    for (size_t i = 0; i < numSamples; ++i) {
+        // Write the label (int)
+        outFile.write(reinterpret_cast<const char*>(&labels[i]), sizeof(labels[i]));
+
+        // Write the 784 float pixels (28 * 28)
+        outFile.write(reinterpret_cast<const char*>(images[i].data()), images[i].size() * sizeof(float));
+    }
+
+    outFile.close();
+    std::cout << "Successfully saved " << numSamples << " samples to " << filename << std::endl;
+}
+
+void LoadDatasetBinary(const std::string& filename,
+    std::vector<std::vector<float>>& images,
+    std::vector<int>& labels) {
+    std::ifstream inFile(filename, std::ios::binary);
+    if (!inFile.is_open()) {
+        std::cerr << "Failed to open file for reading: " << filename << std::endl;
+        return;
+    }
+
+    uint32_t numSamples = 0;
+    uint32_t imgWidth = 0;
+    uint32_t imgHeight = 0;
+
+    // Read Header
+    inFile.read(reinterpret_cast<char*>(&numSamples), sizeof(numSamples));
+    inFile.read(reinterpret_cast<char*>(&imgWidth), sizeof(imgWidth));
+    inFile.read(reinterpret_cast<char*>(&imgHeight), sizeof(imgHeight));
+
+    images.resize(numSamples);
+    labels.resize(numSamples);
+
+    size_t imgSize = imgWidth * imgHeight;
+
+    // Read Data Loop
+    for (size_t i = 0; i < numSamples; ++i) {
+        inFile.read(reinterpret_cast<char*>(&labels[i]), sizeof(labels[i]));
+
+        images[i].resize(imgSize);
+        inFile.read(reinterpret_cast<char*>(images[i].data()), imgSize * sizeof(float));
+    }
+
+    inFile.close();
+    std::cout << "Successfully loaded " << numSamples << " samples from " << filename << std::endl;
+}

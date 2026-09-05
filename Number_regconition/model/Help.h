@@ -30,3 +30,11 @@ std::vector<std::vector<float>> readMNISTLabels(const std::string& filename);
 std::vector<uint8_t> readMNISTLabelsOrigin(const std::string& filename);
 
 void drawImage(const std::vector<float>& image, int rows = 28, int cols = 28);
+
+void LoadDatasetBinary(const std::string& filename,
+	std::vector<std::vector<float>>& images,
+	std::vector<int>& labels);
+
+void SaveDatasetCSV(const std::string& filename,
+	const std::vector<std::vector<float>>& images,
+	const std::vector<int>& labels);
