@@ -12,19 +12,15 @@ public:
 
     void GetModelPredic(const std::vector<float>& inputs);
     void RenderDrawingCanvasWindow();
-
-    void SetInput(const std::vector<float>& in) {
-        m_Inputs = in;
-    }
+    void RenderDatasetAugmentationWindow();
 
     void Run();
 
 private:
     GLFWwindow* window = nullptr;
     Network m_Network;
-    std::vector<float> m_Inputs;
-    
-    int m_UserLabel = 0;
+    std::vector<float> m_CanvasData;
+
     size_t m_PredictNumber = 0;
-    float m_Confidence = 0.0f;
+    std::vector<float> m_Confidence;
 };
