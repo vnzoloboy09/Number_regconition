@@ -13,6 +13,10 @@ inline float ReLUDerivertive(float x) {
 	return (x > 0 ? 1.0f : 0.0f);
 }
 
+float randomFloat(float a, float b);
+
+std::vector<float> OneHot(size_t num);
+
 std::vector<float> ReLU(const std::vector<float>& z);
 
 std::vector<float> Softmax(const std::vector<float>& input);

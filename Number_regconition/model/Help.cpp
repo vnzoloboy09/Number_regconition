@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <random>
 
 std::vector<float> Softmax(const std::vector<float>& input) {
     size_t n = input.size();
@@ -28,6 +29,19 @@ std::vector<float> ReLU(const std::vector<float>& z){
     }
 
     return out;
+}
+
+std::vector<float> OneHot(size_t num) {
+    std::vector<float> out(10, 0.0f);
+    out[num] = 1.0f;
+    return out;
+}
+
+float randomFloat(float a, float b) {
+    static std::random_device rd;   // seed
+    static std::mt19937 gen(rd());  // Mersenne Twister engine
+    std::uniform_real_distribution<float> dist(a, b);
+    return dist(gen);
 }
 
 int32_t readInt(std::ifstream& f) {
